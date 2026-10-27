@@ -1,0 +1,5 @@
+.build/
+*.ipa
+sdk/
+App/Icon/
+.DS_Store
