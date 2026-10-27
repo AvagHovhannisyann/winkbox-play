@@ -24,7 +24,11 @@ Like the WinkBox Remote app this is built without Xcode on the user's Mac: every
 
 `Tools/protocol` checks the phone's networking and cryptography against the real TV from a Mac, with no phone:
 `swiftc -D WB_NO_KEYCHAIN App/Core/PlayLink.swift App/Core/WBCrypto.swift Tools/protocol/main.swift -o protocol && ./protocol <tv address>`.
-`Tools/icon` draws the app icon during the build.
+`Tools/icon` draws the app icon during the build. `bash Tools/preview/run.sh <dir>` renders the app's own screens (looking for the TV,
+welcome, the code, can't reach the TV) on a Mac, portrait and landscape, to check the design without a phone.
+
+The build uses GitHub's macOS 26 machines (Xcode 26, the iOS 26 SDK), so on iOS 26 the app's own screens use Liquid Glass; on
+iOS 16 to 18 they fall back to Apple's materials. The controller page itself (shelf, controls, guest PIN) is web, served by the TV.
 
 ## Installing
 
@@ -32,4 +36,4 @@ Download `WinkPlay.ipa` from the latest release and install it with [Sideloadly]
 An app signed with a free Apple ID stops opening after 7 days (installing it again renews it) and a free Apple ID can have 3 such apps
 on a device at a time.
 
-The first time it opens, iOS asks for the local network: allow it. Then tap "Show the code on the TV" and type the 6 numbers.
+The first time it opens, iOS asks for the local network: allow it. Then tap "Connect to TV" and type the 6 numbers the TV shows.

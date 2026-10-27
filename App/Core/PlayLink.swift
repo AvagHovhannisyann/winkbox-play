@@ -23,6 +23,8 @@ final class PlayLink: ObservableObject {
     @Published var link: Link = .searching
     @Published var pairing: PairingStep = .none
     @Published var pairingError: String?
+    /// The controller page has loaded from the TV and said hello; until then the app's own screen shows.
+    @Published var pageReady = false
     @Published var host: String { didSet { defaults.set(host, forKey: "tv.host") } }
 
     /// Every message from the TV, for the controller page.
@@ -301,6 +303,9 @@ enum Haptics {
     private static let light = UIImpactFeedbackGenerator(style: .light)
     private static let medium = UIImpactFeedbackGenerator(style: .medium)
     private static let heavy = UIImpactFeedbackGenerator(style: .heavy)
+    private static let soft = UIImpactFeedbackGenerator(style: .soft)
+    private static let rigid = UIImpactFeedbackGenerator(style: .rigid)
+    private static let select = UISelectionFeedbackGenerator()
     private static let notify = UINotificationFeedbackGenerator()
     #endif
 
@@ -309,7 +314,12 @@ enum Haptics {
         switch style {
         case "heavy": heavy.impactOccurred()
         case "medium": medium.impactOccurred()
+        case "soft": soft.impactOccurred()
+        case "rigid": rigid.impactOccurred()
+        case "select": select.selectionChanged()
         case "success": notify.notificationOccurred(.success)
+        case "warning": notify.notificationOccurred(.warning)
+        case "error": notify.notificationOccurred(.error)
         default: light.impactOccurred(intensity: 0.8)
         }
         #endif

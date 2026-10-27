@@ -14,7 +14,7 @@ struct PlayWebView: UIViewRepresentable {
         config.userContentController.add(WeakHandler(context.coordinator), name: "wb")
         let web = WKWebView(frame: .zero, configuration: config)
         web.isOpaque = false
-        web.backgroundColor = UIColor(red: 0.043, green: 0.051, blue: 0.157, alpha: 1)
+        web.backgroundColor = .black
         web.scrollView.backgroundColor = web.backgroundColor
         web.scrollView.isScrollEnabled = false        // the page scrolls its own shelf; the page itself never moves
         web.scrollView.bounces = false
@@ -56,6 +56,8 @@ struct PlayWebView: UIViewRepresentable {
             guard let web else { return }
             if link.link == .ready, !link.host.isEmpty, loadedHost != link.host {
                 loadedHost = link.host
+                let l = link
+                Task { @MainActor in l.pageReady = false }               // not during the view update itself
                 if let url = URL(string: "http://\(link.host):\(PlayLink.webPort)/web/index.html") { web.load(URLRequest(url: url)) }
             }
             push("window.WBHost&&WBHost.link(\(js(linkName)),\(js(linkDetail)))")
@@ -100,7 +102,10 @@ struct PlayWebView: UIViewRepresentable {
                 tilt.set(m["on"] as? Bool ?? false, name: m["n"] as? String ?? "tilt", link: link)
             case "forget":
                 link.forgetThisPhone()
+            case "retry":
+                link.retryNow()
             case "ready":
+                link.pageReady = true
                 update()
                 link.replay()
             default:
@@ -118,7 +123,7 @@ struct PlayWebView: UIViewRepresentable {
 
         func webView(_ webView: WKWebView, didFail navigation: WKNavigation!, withError error: Error) { reloadSoon() }
         func webView(_ webView: WKWebView, didFailProvisionalNavigation navigation: WKNavigation!, withError error: Error) { reloadSoon() }
-        func webViewWebContentProcessDidTerminate(_ webView: WKWebView) { reloadSoon() }
+        func webViewWebContentProcessDidTerminate(_ webView: WKWebView) { link.pageReady = false; reloadSoon() }
 
         private func reloadSoon() {
             reloadWork?.cancel()
