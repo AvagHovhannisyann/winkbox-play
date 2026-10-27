@@ -294,15 +294,19 @@ struct Backdrop: View {
     @State private var drift = false
 
     var body: some View {
-        ZStack {
-            Color.black
-            glow(Color(red: 0.36, green: 0.25, blue: 0.95), 0.6).frame(width: 760, height: 760)
-                .offset(x: drift ? -90 : -150, y: drift ? -260 : -200)
-            glow(Color(red: 1.0, green: 0.42, blue: 0.4), 0.38).frame(width: 640, height: 640)
-                .offset(x: drift ? 150 : 90, y: drift ? 280 : 340)
-        }
-        .ignoresSafeArea()
-        .onAppear { withAnimation(.easeInOut(duration: 9).repeatForever(autoreverses: true)) { drift = true } }
+        // The lights are an overlay on the black, so their size never widens the screen's layout.
+        Color.black
+            .overlay(
+                ZStack {
+                    glow(Color(red: 0.36, green: 0.25, blue: 0.95), 0.6).frame(width: 760, height: 760)
+                        .offset(x: drift ? -90 : -150, y: drift ? -260 : -200)
+                    glow(Color(red: 1.0, green: 0.42, blue: 0.4), 0.38).frame(width: 640, height: 640)
+                        .offset(x: drift ? 150 : 90, y: drift ? 280 : 340)
+                }
+            )
+            .clipped()
+            .ignoresSafeArea()
+            .onAppear { withAnimation(.easeInOut(duration: 9).repeatForever(autoreverses: true)) { drift = true } }
     }
 
     /// A soft light: a radial gradient rather than a blurred shape, so it costs nothing to draw.
